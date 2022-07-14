@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+
+</head>
+
+<body>
+
+<canvas id="myChart" width="400" height="400"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.js"></script>
+
+<script>
+
+  // Radio del cilindro de concreto en mm
+  const radioCilindro = 75;  
+
+  //Precisión aceptable: +- 0.05 MPa/s (NTC-673)
+  const precision = 0.05;
+
+  /* Velocidad de carga en MPa/s
+  Rango aceptable: 0.15 a 0.35 MPa/s (ASTM C-39)
+  Valor recomendado por NTC-673: 0.25 MPa/s  
+  */  
+  const velocidadCarga = 0.25;
+
+  // Carga aplicada en kN/s
+  const cargaAplicada = velocidadCarga*Math.PI*radioCilindro**2;
+  
+  // Se aplica la carga con cierto nivel de aleatoriedad
+  const labels = [];
+  const data = [];
+			let inic = 0;
+			for (let i=0; i<180; i++){
+			inic += cargaAplicada + Math.random()*precision;
+			data.push({x: i, y: inic/1000});
+			};
+
+  const totalDuration = 180000;
+  const delayBetweenPoints = totalDuration / data.length;
+  // const delayBetweenPoints = 1;
+  const previousY = (ctx) => ctx.index === 0 ? ctx.chart.scales.y.getPixelForValue(100) : ctx.chart.getDatasetMeta(ctx.datasetIndex).data[ctx.index - 1].getProps(['y'], true).y;
+  const animation = {
+    x: {
+      type: 'number',
+      easing: 'linear',
+      duration: delayBetweenPoints,
+       from: NaN, // the point is initially skipped
+       delay(ctx) {
+         if (ctx.type !== 'data' || ctx.xStarted) {
+           return 0;
+         }
+         ctx.xStarted = true;
+         return ctx.index * delayBetweenPoints;
+       }
+     },
+     y: {
+       type: 'number',
+       easing: 'linear',
+       duration: delayBetweenPoints,
+      
+       from: previousY,
+       delay(ctx) {
+         if (ctx.type !== 'data' || ctx.yStarted) {
+           return 0;
+         }
+         ctx.yStarted = true;
+         return ctx.index * delayBetweenPoints;
+       }
+     }
+   };
+
+  const config = {
+    type: 'line',
+    data: {
+      datasets: [{   
+        borderColor: 'rgb(200, 50, 50)',     
+        borderWidth: 1.5,
+        radius: 0,
+        data: data,
+      }],
+      
+    },
+
+    options: {
+       animation,
+       interaction: {
+         intersect: false
+       },
+      plugins: {
+        legend: false,
+        title: {
+                display: true,
+                text: 'Carga Aplicada (kN)',
+                align: 'start'
+            }
+      },
+      scales: {
+        x: {          
+          type: 'linear',
+          
+          title: {
+            display: true,
+            text: 'Tiempo (s)'
+          },
+          
+        y: {
+          type: 'linear',
+          title: {
+            display: true,
+            text: 'Carga aplicada (kN)'
+          }
+        }
+
+        }
+      }
+    }
+  };
+</script>
+
+<script>
+  const myChart = new Chart(
+    document.getElementById('myChart'),
+    config
+  );
+</script>
+
+</body>
