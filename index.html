@@ -4,7 +4,7 @@
 <head>
 
 	<meta charset="utf-8">
-	<title>Laboratorio de tension - Universidad del Valle - Reider Muñoz</title>
+	<title>Resistencia a compresión de especímenes de concreto</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
@@ -49,19 +49,9 @@
 			<div class="col-md-3">
 				<a href="/" class="d-flex align-items-center text-dark text-decoration-none">
 					<img src="logo.png" style="height: 30px;">
-					<span class="fs-8">LABORATORIOS VIRTUALES</span>
+					<span class="fs-8">Laboratorios Virtuales</span>
 				</a>
-			</div>
-			<div class="col-md-9" style="text-align: right;" >
-				<a  class="btn btn-sm btn-outline-secondary" href="index_barra2.html">Aluminio</a>
-			</div>
-		<!--	<div class="col-md-9" style="text-align: right;">
-				
-				<a class="btn btn-sm btn-outline-secondary" href="index copy.html">aaTorsión</a>
-				<a class="btn btn-sm btn-outline-secondary" href="https://reidermunoz.github.io/lab-tension.github.io/">SISTorsión</a>
-				<a class="btn btn-sm btn-outline-secondary" href="#">Torsión</a>
-				<a class="btn btn-sm btn-outline-secondary" href="#">Torsión</a>
-			</div>-->
+			</div>			
 		</div>
 	</div>
 
@@ -76,10 +66,9 @@
 
 		<div class="card" style="width: 100%;">
 			<div class="card-body">
-				<div style="text-align: center;">
-					<button type="button" onclick="zoom()" class="btn btn-primary">Zoom</button>
+				<div style="text-align: center;">					
 					<button type="button" onclick="iniciar()" class="btn btn-secondary">Iniciar</button>
-					<button type="button" href="Datos.xlsx" download="Datos.xlsx" class="btn btn-success">Datos</button>
+					<!-- <button type="button" href="Datos.xlsx" download="Datos.xlsx" class="btn btn-success">Datos</button> -->
 				</div>
 			</div>
 		</div>
@@ -87,11 +76,10 @@
 			<div class="card-body">
 				<form class="row g-2">
 					<div class="col-auto" style="width:180px">
-						<label class="form-label" style="font-size:14px">Punto de fluencia <i
-								data-tippy-content="Punto donde la gráfica deja de comportarse de forma lineal"
-								class="ti ti-question-mark text-primary"></i></label>
-						<input type="text" class="form-control form-control-sm" name="punto_fluencia"
-							id="punto_fluencia" placeholder="">
+						<label class="form-label" style="font-size:14px">Resistencia esperada (MPa)<i
+								data-tippy-content="La resistencia que debería tener el espécimen"></i></label>
+						<input type="text" class="form-control form-control-sm" name="resistenciaEsperada"
+							id="resistenciaEsperada" placeholder="">
 					</div>
 					<div class="col-auto" style="width:180px">
 						<label class="form-label" style="font-size: 14px">Módulo elástico <i
@@ -148,6 +136,10 @@
 	<script>
 		tippy('[data-tippy-content]');
 
+		resistenciaNominal = parseFloat(resistenciaEsperada);
+
+		// Resistencia obtenida
+		const resistenciaObtenida = resistenciaNominal + resistenciaNominal*Math.random()*0.1 - resistenciaNominal*Math.random()*0.1;
 		// Radio del cilindro de concreto en mm
 		const radioCilindro = 75;  
 
@@ -168,9 +160,17 @@
 		const data = [];
 				let inic = 0;
 				for (let i=0; i<180; i++){
-				inic += cargaAplicada + Math.random()*precision;
+				inic += cargaAplicada + Math.random()*precision - Math.random()*precision;
 				data.push({x: i, y: inic/1000});
-				};
+				resComp = inic/Math.PI*radioCilindro**2;
+				 if (resComp >= resistenciaObtenida){
+					inic -= cargaAplicada + Math.random()*precision - Math.random()*precision;
+					if (inic < 0.95*resistenciaObtenida){
+
+					}
+
+				 }
+				}; 
 
 		const totalDuration = 180000;
 		const delayBetweenPoints = totalDuration / data.length;
@@ -252,6 +252,11 @@
 			}
 		}
 		};
+
+		const myChart = new Chart(
+			document.getElementById('myChart'),
+			config
+		);
 
 
 		var scene = new THREE.Scene();
