@@ -49,7 +49,7 @@
 			<div class="col-md-3">
 				<a href="/" class="d-flex align-items-center text-dark text-decoration-none">
 					<img src="logo.png" style="height: 30px;">
-					<span class="fs-8">Laboratorios Virtuales</span>
+					<span class="fs-8">LABORATORIOS VIRTUALES</span>
 				</a>
 			</div>			
 		</div>
@@ -67,7 +67,7 @@
 		<div class="card" style="width: 100%;">
 			<div class="card-body">
 				<div style="text-align: center;">					
-					<button type="button" onclick="iniciar()" class="btn btn-secondary">Iniciar</button>
+					<button type="button" onclick="cargaiar()" class="btn btn-secondary">cargaiar</button>
 					<!-- <button type="button" href="Datos.xlsx" download="Datos.xlsx" class="btn btn-success">Datos</button> -->
 				</div>
 			</div>
@@ -124,55 +124,91 @@
 	<script src="https://cdn.jsdelivr.net/npm/three@0.136.0/build/three.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/controls/OrbitControls.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/loaders/GLTFLoader.js"></script>
-
-
-
-
-
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="tension_barra1.js"></script>
-
 
 	<script>
 		tippy('[data-tippy-content]');
 
-		resistenciaNominal = parseFloat(resistenciaEsperada);
+		// resistenciaNominal = parseFloat(resistenciaEsperada);
+		const resistenciaNominal = 80;
 
 		// Resistencia obtenida
 		const resistenciaObtenida = resistenciaNominal + resistenciaNominal*Math.random()*0.1 - resistenciaNominal*Math.random()*0.1;
+		
 		// Radio del cilindro de concreto en mm
-		const radioCilindro = 75;  
-
-		//Precisión aceptable: +- 0.05 MPa/s (NTC-673)
-		const precision = 0.05;
+		const radioCilindro = 75; 		
 
 		/* Velocidad de carga en MPa/s
 		Rango aceptable: 0.15 a 0.35 MPa/s (ASTM C-39)
 		Valor recomendado por NTC-673: 0.25 MPa/s  
 		*/  
 		const velocidadCarga = 0.25;
+		//Precisión aceptable: +- 0.05 MPa/s (NTC-673)
+		const precision = 0.05;
+
+		const areaCilindro = Math.PI*radioCilindro**2;
+
+		/* Thorenfeldt, Tomaszewicz, and Jensen 
+		(Wight, Reinforced concrete mechanics and design 2016)
+		Para concretos con f'c entre 15 y 125 MPa: */
+		
+		const data = [];
+		const FC = resistenciaObtenida*1000/7; // En psi
+		const n = 0.8 + (FC/2500);
+		const Ec = 57000*Math.sqrt(FC);
+		const e0 = (FC/Ec)*(n/(n-1));
+		let e;
+		let fc;
+		let k; 
+
+		for (e = 0.00000; e <= 0.00400; e += 0.00001) {
+
+			coef = e/e0;
+
+			if (coef <= 1)
+				k = 1;
+				else
+				k = 0.67 + (FC / 9000);
+			
+			fc = (7/1000) * ( n * FC * coef ) / ( n - 1 + coef**(n*k));			
+
+			data.push({x: e, y: fc + Math.random()*0.2});
+			
+		}
 
 		// Carga aplicada en kN/s
-		const cargaAplicada = velocidadCarga*Math.PI*radioCilindro**2;
+		// const cargaAplicada = velocidadCarga*areaCilindro;
+				
+		// Para concretos con f'c <= 35 MPa
+		/* const labels = [];
+		const data = [];		
+		const Ec = 4700 * Math.sqrt(resistenciaObtenida);
+		const e0 = 1.71 * resistenciaObtenida / Ec;
+		let e;
+		let fc;
+
+		for (e = 0.00000; e <= 0.00500; e += 0.00001) {
+			
+			fc = (2 * 0.9 * resistenciaObtenida * (e / e0)) / (1 + (e / e0) ** 2);
+
+			data.push({x: e, y: fc + Math.random()*0.2});
+		}
+ */
+
+		
 
 		// Se aplica la carga con cierto nivel de aleatoriedad
-		const labels = [];
-		const data = [];
-				let inic = 0;
-				for (let i=0; i<180; i++){
-				inic += cargaAplicada + Math.random()*precision - Math.random()*precision;
-				data.push({x: i, y: inic/1000});
-				resComp = inic/Math.PI*radioCilindro**2;
-				 if (resComp >= resistenciaObtenida){
-					inic -= cargaAplicada + Math.random()*precision - Math.random()*precision;
-					if (inic < 0.95*resistenciaObtenida){
+		/* let carga = 0;
+		let i=0;		
+		let resistencia = 0;		
+		while (resistencia < resistenciaObtenida){
+			i++,			
+			carga += cargaAplicada + Math.random()*precision - Math.random()*precision;
+			resistencia = carga/areaCilindro;
+			data.push({x: i, y: carga/1000});
+			} */		
 
-					}
-
-				 }
-				}; 
-
-		const totalDuration = 180000;
+		const totalDuration = data.length*100;
 		const delayBetweenPoints = totalDuration / data.length;
 		// const delayBetweenPoints = 1;
 		const previousY = (ctx) => ctx.index === 0 ? ctx.chart.scales.y.getPixelForValue(100) : ctx.chart.getDatasetMeta(ctx.datasetIndex).data[ctx.index - 1].getProps(['y'], true).y;
@@ -227,7 +263,7 @@
 			legend: false,
 			title: {
 					display: true,
-					text: 'Carga Aplicada (kN)',
+					text: 'Esfuerzo (Mpa)',
 					align: 'start'
 				}
 			},
@@ -237,7 +273,7 @@
 				
 				title: {
 				display: true,
-				text: 'Tiempo (s)'
+				text: 'Deformación'
 				},
 				
 			y: {
@@ -257,7 +293,11 @@
 			document.getElementById('myChart'),
 			config
 		);
+	</script>
 
+<div>
+
+	<script>
 
 		var scene = new THREE.Scene();
 		var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
@@ -430,7 +470,7 @@
 
 		}
 
-		var iniciar_ = false;
+		var cargaiar_ = false;
 
 
 		function animate() {
@@ -438,7 +478,7 @@
 			controls.update();
 			console.log(camera.position)
 
-			if (iniciar_) {
+			if (cargaiar_) {
 				if (garra) {
 					var cant = chart.data.datasets[0].data.length;
 					contador_barra1.push(1);
@@ -482,8 +522,8 @@
 		animate()
 
 
-		function iniciar() {
-			iniciar_ = true;
+		function cargaiar() {
+			cargaiar_ = true;
 		}
 
 
@@ -584,8 +624,9 @@
 		};
 		animate(); */
 
-
 	</script>
+</div>
+
 </body>
 
 </html>
