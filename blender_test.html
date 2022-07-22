@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+	<title>Ejemplo archivo .blend con javascript</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+		crossorigin="anonymous"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+		integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+		crossorigin="anonymous"></script>
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/1.35.0/iconfont/tabler-icons.min.css"
+		integrity="sha512-tpsEzNMLQS7w9imFSjbEOHdZav3/aObSESAL1y5jyJDoICFF2YwEdAHOPdOr1t+h8hTzar0flphxR76pd0V1zQ=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+	<script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
+
+    <script type="text/javascript" src="./build/js.blend.js"></script>
+		<script type="text/javascript" src="./example/three.js"></script>
+		<script type="text/javascript" src="./example/orbit_controls.js"></script>
+</head>
+
+
+<body>
+    <div>
+<script>
+    
+    JSBLEND("Material_Test.blend").then((blend)=>{blend.three.loadScene(scene);
+	       		render();
+	    	})
+
+    var cube = blend.three.loadObject("Cilindro"); //-> ThreeJS Mesh Object with materials returned;
+
+    var scene = new THREE.Scene();
+
+	blend.three.loadScene(scene);
+
+    // var light = blend.three.loadObject("Lamp"); //-> ThreeJS light returned;
+
+	
+
+</script>
+
+
+    </div>
+
+
+
+
+</body>
+
+</html>
