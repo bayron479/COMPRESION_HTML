@@ -125,7 +125,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/controls/OrbitControls.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/loaders/GLTFLoader.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+	
 	<script>
 		tippy('[data-tippy-content]');
 
@@ -165,48 +165,20 @@
 
 			coef = e/e0;
 
-			if (coef <= 1)
+			if (coef <= 1) 
 				k = 1;
-				else
-				k = 0.67 + (FC / 9000);
+				else 
+				k = 0.67 + (FC / 9000);			
 			
 			fc = (7/1000) * ( n * FC * coef ) / ( n - 1 + coef**(n*k));			
 
 			data.push({x: e, y: fc + Math.random()*0.2});
-			
+
 		}
 
-		// Carga aplicada en kN/s
-		// const cargaAplicada = velocidadCarga*areaCilindro;
-				
-		// Para concretos con f'c <= 35 MPa
-		/* const labels = [];
-		const data = [];		
-		const Ec = 4700 * Math.sqrt(resistenciaObtenida);
-		const e0 = 1.71 * resistenciaObtenida / Ec;
-		let e;
-		let fc;
+		</script>
 
-		for (e = 0.00000; e <= 0.00500; e += 0.00001) {
-			
-			fc = (2 * 0.9 * resistenciaObtenida * (e / e0)) / (1 + (e / e0) ** 2);
-
-			data.push({x: e, y: fc + Math.random()*0.2});
-		}
- */
-
-		
-
-		// Se aplica la carga con cierto nivel de aleatoriedad
-		/* let carga = 0;
-		let i=0;		
-		let resistencia = 0;		
-		while (resistencia < resistenciaObtenida){
-			i++,			
-			carga += cargaAplicada + Math.random()*precision - Math.random()*precision;
-			resistencia = carga/areaCilindro;
-			data.push({x: i, y: carga/1000});
-			} */		
+		<script>		
 
 		const totalDuration = data.length*100;
 		const delayBetweenPoints = totalDuration / data.length;
