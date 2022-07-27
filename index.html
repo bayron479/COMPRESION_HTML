@@ -129,24 +129,31 @@
 	<script>
 		tippy('[data-tippy-content]');
 
-		// resistenciaNominal = parseFloat(resistenciaEsperada);
-		const resistenciaNominal = 80;
+		// Resistencia esperada en MPa
+		const resistenciaNominal = 35;
 
 		// Resistencia obtenida
-		const resistenciaObtenida = resistenciaNominal + resistenciaNominal*Math.random()*0.1 - resistenciaNominal*Math.random()*0.1;
+		const resistenciaObtenida = resistenciaNominal + resistenciaNominal*Math.random()*0.15 - resistenciaNominal*Math.random()*0.15;
 		
-		// Radio del cilindro de concreto en mm
-		const radioCilindro = 75; 		
+		// Diámetro del cilindro de concreto en mm
+		const diametroCilindro = 150 + Math.random() - Math.random();
+		const longitudCilindro = 300 + Math.random() - Math.random(); 
+		const areaCilindro = Math.PI*(diametroCilindro/2)**2; 
+		
+		alert(`
+			Diámetro = ${diametroCilindro} mm\n
+			Longitud = ${longitudCilindro} mm\n
+			Resistencia Obtenida = ${resistenciaObtenida} MPa\n
+			
+			`);
 
 		/* Velocidad de carga en MPa/s
 		Rango aceptable: 0.15 a 0.35 MPa/s (ASTM C-39)
 		Valor recomendado por NTC-673: 0.25 MPa/s  
 		*/  
-		const velocidadCarga = 0.25;
+		//const velocidadCarga = 0.25;
 		//Precisión aceptable: +- 0.05 MPa/s (NTC-673)
-		const precision = 0.05;
-
-		const areaCilindro = Math.PI*radioCilindro**2;
+		const precision = 0.05;		
 
 		/* Thorenfeldt, Tomaszewicz, and Jensen 
 		(Wight, Reinforced concrete mechanics and design 2016)
@@ -159,9 +166,11 @@
 		const e0 = (FC/Ec)*(n/(n-1));
 		let e;
 		let fc;
-		let k; 
+		let k;
+		let cargaAplicada;
+		let desplazamiento;		 
 
-		for (e = 0.00000; e <= 0.00400; e += 0.00001) {
+		for (e = 0.00000; e <= 0.00300; e += 0.00001) {
 
 			coef = e/e0;
 
@@ -170,9 +179,13 @@
 				else 
 				k = 0.67 + (FC / 9000);			
 			
-			fc = (7/1000) * ( n * FC * coef ) / ( n - 1 + coef**(n*k));			
+			fc = (7/1000) * ( n * FC * coef ) / ( n - 1 + coef**(n*k));
+			
+			cargaAplicada = ((fc * areaCilindro) + Math.random()*precision - Math.random()*precision ) / 1000; 
 
-			data.push({x: e, y: fc + Math.random()*0.2});
+			desplazamiento = longitudCilindro * e;
+
+			data.push({x: desplazamiento, y: cargaAplicada});
 
 		}
 
@@ -235,7 +248,7 @@
 			legend: false,
 			title: {
 					display: true,
-					text: 'Esfuerzo (Mpa)',
+					text: 'Carga aplicada (kN)',
 					align: 'start'
 				}
 			},
@@ -245,7 +258,7 @@
 				
 				title: {
 				display: true,
-				text: 'Deformación'
+				text: 'Desplazamiento (mm)'
 				},
 				
 			y: {
